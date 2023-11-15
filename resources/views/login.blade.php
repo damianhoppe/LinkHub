@@ -21,11 +21,11 @@
         color: red;
       }
       input[type="submit"] {
-        margin-top: 12px;
-        width: 248px;
+        margin-top: 24px;
       }
       label {
         margin-top: 8px;
+        font-size: 1.6em;
       }
       input {
         width: 240px;

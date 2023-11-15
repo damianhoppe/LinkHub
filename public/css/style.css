@@ -37,6 +37,12 @@ header > * {
     position: relative;
 }
 
+header > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 header > h1 {
     font-size: 34px;
     margin-bottom: 4px;
@@ -59,7 +65,7 @@ main > ul > li {
     width: var(--max-width);
 }
 
-main > ul > li > a {
+main > ul > li > a, input {
     box-sizing: border-box;
     overflow: hidden;
     display: flex;
@@ -75,6 +81,18 @@ main > ul > li > a {
     border: 4px solid #DDD;
     color: black;
     transition: all 0.3s ease-in-out;
+}
+
+form > label {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    font-size: 1.4em;
+}
+
+form > input[type="submit"] {
+    margin-top: 12px;
 }
 
 main > ul > li > a > .icon {
@@ -103,6 +121,16 @@ main > ul > li > a > .icon {
 main > ul > li > a > .text {
     flex-grow: 1;
     text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+}
+
+main li > form {
+    margin: 24px;
 }
 
 footer {
@@ -163,7 +191,7 @@ button.round {
     background-color: #DDD2;
 }
 
-.actionButtons > button > img {
+.actionButtons button > img {
     width: 18px;
     height: 18px;
 }
@@ -176,7 +204,7 @@ button.round {
     filter: invert(1);
 }
 
-.actionButtons > .round-b2 {
+.actionButtons .round-b2 {
     display: flex;
     flex-direction: column;
 }
@@ -209,7 +237,7 @@ button.round {
     height: 100%;
 }
 
-.actionButtons > * {
+.actionButtons > *, .actionButtons form > button, .actionButtons a > button, .virtualActionButtons > *, .virtualActionButtons form > button, .virtualActionButtons a > button {
     width: 38px;
     height: 38px;
     display: flex;
@@ -250,4 +278,16 @@ li.action > a:hover > .icon {
 a {
     color: #DDD;
     text-decoration: none;
+}
+
+.position-relative {
+    position: relative;
+}
+
+header form > input[type="text"] {
+    width: 200px;
+}
+
+input[type="submit"] {
+    cursor: pointer;
 }

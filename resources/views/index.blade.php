@@ -17,6 +17,10 @@
   <body>
     <div id="container">
       <header>
+        @if ($isLogged)
+          <a href="/admin/links">Edit</a>
+          <a href="/logout">Logout</a>
+        @endif
         <img src=""/>
         <h1>{{ $title }}</h1>
         <p>{{ $description }}</p>

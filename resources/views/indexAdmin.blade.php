@@ -17,39 +17,68 @@
   <body>
     <div id="container">
       <header>
-        @if($admin)
-          <a href="/logout">Logout</a>
-        @endif
+          <a href="/">Preview</a>
+        <a href="/logout">Logout</a>
         <img src=""/>
         <div>
           <h1 id="title">
             {{ $title }}
           </h1>
-          <div class="actionButtons">
-            <button class="round" data-onclick-event="edit" data-param="title">
-              <img src="/icons/feather/edit.svg" />
-            </button>
-          </div>
+          <form action="/admin/settings/title" method="post" class="virtualActionButtons position-relative">
+            @csrf
+            @method('PUT')
+            <input type="text" name="value" value="{{ $title }}" data-on-update-id="title"/>
+            <div class="actionButtons">
+              <button type="submit" class="round">
+                <img src="/icons/feather/edit.svg" />
+              </button>
+            </div>
+          </form>
         </div>
         <div>
           <p id="description">
             {{ $description }}
           </p>
-          <div class="actionButtons">
-            <button class="round" data-onclick-event="edit" data-param="description">
-              <img src="/icons/feather/edit.svg" />
-            </button>
-          </div>
+          <form action="/admin/settings/description" method="post" class="virtualActionButtons position-relative">
+            @csrf
+            @method('PUT')
+            <input type="text" name="value" value="{{ $description }}" data-on-update-id="description"/>
+            <div class="actionButtons">
+              <button type="submit" class="round">
+                <img src="/icons/feather/edit.svg" />
+              </button>
+            </div>
+          </form>
         </div>
       </header>
       <main>
         <ul>
           @foreach ($links as $link)
             <li data-id="{{ $link->id }}" data-name="{{ $link->name }}" data-icon="{{ $link->icon }}" data-url="{{ $link->url }}">
-              <a href="{{ $link->url }}" target="_blank">
-                <img class="icon" src="{{ asset('icons/feather/' . $link->icon) }}"/>
-                <span class="text">{{ $link->name }}</span>
-              </a>
+              @if (!empty($linkToEdit) && $linkToEdit->id == $link->id)
+              <form action="/admin/links/{{ $link->id }}" method="post">
+                @csrf
+                @method('PUT')
+                <label>
+                  <span>Name</span>
+                  <input type="text" name="name" value="{{ $linkToEdit->name }}"/>
+                </label>
+                <label>
+                  <span>Url</span>
+                  <input type="text" name="url" value="{{ $linkToEdit->url }}"/>
+                </label>
+                <label>
+                  <span>Icon</span>
+                  <input type="text" name="icon" value="{{ $linkToEdit->icon }}"/>
+                </label>
+                <input type="submit" value="Save"/>
+              </form>
+              @else
+                <a href="{{ $link->url }}" target="_blank">
+                  <img class="icon" src="{{ asset('icons/feather/' . $link->icon) }}"/>
+                  <span class="text">{{ $link->name }}</span>
+                </a>
+              @endif
               <div class="actionButtons">
                 <div class="round-b2">
                   <button data-onclick-event="toUpLink">
@@ -59,18 +88,28 @@
                     <img src="/icons/feather/chevron-down.svg" />
                   </button>
                 </div>
-                <button class="round" data-onclick-event="editLink">
-                  <img src="/icons/feather/edit.svg" />
-                </button>
-                <button class="round" data-onclick-event="removeLink">
-                  <img src="/icons/feather/x.svg" />
-                </button>
+                @if (!empty($linkToEdit) && $linkToEdit->id == $link->id)
+                  <a href="/admin/links">
+                @else
+                  <a href="/admin/links/{{ $link->id }}/edit">
+                @endif
+                  <button class="round" data-onclick-event="editLink">
+                    <img src="/icons/feather/edit.svg" />
+                  </button>
+                </a>
+                <form action="/admin/links/{{ $link->id }}" method="post">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="round" data-onclick-event="removeLink">
+                    <img src="/icons/feather/x.svg" />
+                  </button>
+                </form>
               </div>
             </li>
           @endforeach
           <div class="line"></div>
-          <li onclick="newLink(event)">
-            <a href="#">
+          <li>
+            <a href="/admin/links/create">
               <img class="icon" src="{{ asset('icons/feather/plus.svg') }}"/>
               <span class="text">Dodaj</span>
             </a>
@@ -87,48 +126,28 @@
 </html>
 
 <script>
+
+let inputs = document.getElementsByTagName("input");
+for (let input of inputs) {
+  let id = input.dataset.onUpdateId;
+  console.log(input.dataset);
+  if(id == null)
+    continue;
+  let element = document.getElementById(id);
+  if(element == null)
+    continue;
+  let updateInnerText = function() {
+    element.innerText = input.value;
+  };
+  input.addEventListener('input', updateInnerText);
+}
+
 let buttons = document.getElementsByTagName("button");
 for (let button of buttons) {
   let event = button.dataset.onclickEvent;
   if(event == null)
     continue;
   switch(event) {
-    case "edit":
-      button.addEventListener('click', function(event) {
-        let param = event.target.dataset.param;
-        let valueElement = document.getElementById(event.target.dataset.param);
-        if(valueElement == null)
-          return;
-        let value = valueElement.innerText;
-        let newValue = window.prompt("", value);
-        if(newValue != null) {
-          window.location.href = "?edit=" + param + "&value=" + newValue;
-        }
-      });
-      break;
-    case "editLink":
-      button.addEventListener('click', function(event) {
-        let li = event.target.closest('li');
-        let id = li.dataset.id;
-        let name = window.prompt("", li.dataset.name);
-        if(name == null)
-          return;
-        let url = window.prompt("", li.dataset.url);
-        if(url == null)
-          return;
-        let icon = window.prompt("", li.dataset.icon);
-        if(icon == null)
-          return;
-        window.location.href = "?editLink=" + id + "&name=" + name + "&url=" + url + "&icon=" + icon;
-      });
-      break;
-    case "removeLink":
-      button.addEventListener('click', function(event) {
-        let li = event.target.closest('li');
-        let id = li.dataset.id;
-        window.location.href = "?removeLink=" + id;
-      });
-      break;
     case "toUpLink":
       button.addEventListener('click', function(event) {
         let li = event.target.closest('li');
@@ -160,5 +179,6 @@ function newLink(event) {
   window.location.href = "?newLink=true&name=" + name + "&url=" + url + "&icon=" + icon;
 }
 
-window.history.replaceState('page2', 'Title', '/');
+if(window.location.href.indexOf('?') >= 0)
+  window.history.replaceState('page2', 'Title', '{{ route('admin.links.index') }}');
 </script>
